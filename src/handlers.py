@@ -10,23 +10,26 @@ from telegram.constants import ChatAction, ParseMode
 
 from .api_client import LiberGPTAPIClient
 from .utils import truncate_message, format_error_message, escape_markdown
+from .memory import ConversationMemory
 
 logger = logging.getLogger(__name__)
 
 class MessageHandlers:
     """Collection of message handlers for the bot"""
     
-    def __init__(self, api_client: LiberGPTAPIClient, rate_limiter, max_message_length: int = 4096):
+    def __init__(self, api_client: LiberGPTAPIClient, rate_limiter, memory: ConversationMemory, max_message_length: int = 4096):
         """
         Initialize message handlers
         
         Args:
             api_client: API client instance
             rate_limiter: Rate limiter instance
+            memory: Conversation memory instance
             max_message_length: Maximum message length
         """
         self.api_client = api_client
         self.rate_limiter = rate_limiter
+        self.memory = memory
         self.max_message_length = max_message_length
     
     async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -53,9 +56,10 @@ I'm your free AI assistant powered by advanced language models\\. I can help you
 **Commands:**
 • `/help` \\- Show this help message
 • `/status` \\- Check bot status
+• `/clear` \\- Clear conversation memory
 • Just send me any message to start chatting\\!
 
-**Note:** This bot has rate limiting to ensure fair usage for everyone\\.
+**Note:** This bot has rate limiting to ensure fair usage for everyone\\. I also remember our last 20 conversations for better context\\!
 
 Ready to chat? Send me a message\\! 🚀
         """
@@ -80,6 +84,7 @@ Ready to chat? Send me a message\\! 🚀
 • `/start` \\- Welcome message and introduction
 • `/help` \\- Show this help message
 • `/status` \\- Check bot and API status
+• `/clear` \\- Clear your conversation memory
 
 **How to Use:**
 1\\. Simply send me any message or question
@@ -99,6 +104,8 @@ To ensure fair usage, there are rate limits in place\\. If you hit the limit, yo
 • Be specific with your questions for better answers
 • For code\\-related questions, mention the programming language
 • I can help with explanations, creative writing, problem\\-solving, and more\\!
+• I remember our last 20 conversations for better context
+• Use `/clear` to reset conversation memory if needed
 
 Need more help? Just ask me anything\\! 💬
         """
@@ -128,6 +135,9 @@ Need more help? Just ask me anything\\! 💬
         async with self.api_client as client:
             api_healthy = await client.health_check()
         
+        # Get memory stats
+        memory_stats = self.memory.get_memory_stats(update.effective_user.id)
+        
         status_emoji = "🟢" if api_healthy else "🔴"
         api_status = "Online" if api_healthy else "Offline"
         
@@ -141,6 +151,10 @@ Need more help? Just ask me anything\\! 💬
 **Rate Limiting:**
 • Max messages: {self.rate_limiter.max_messages} per {self.rate_limiter.time_window}s
 • Your status: {"✅ Available" if self.rate_limiter.is_allowed(update.effective_user.id) else "⏳ Rate limited"}
+
+**Memory:**
+• Conversations stored: {memory_stats['conversation_count']}/20
+• Use `/clear` to reset memory
 
 **Last Updated:** Just now
         """
@@ -187,9 +201,21 @@ This helps ensure fair usage for all users\\. Thank you for understanding\\! �
         )
         
         try:
+            # Get conversation context for better responses
+            context_string = self.memory.get_context_string(user.id, include_last_n=3)
+            
+            # Prepare message with context if available
+            if context_string:
+                full_message = f"{context_string}\n{message_text}"
+            else:
+                full_message = message_text
+            
             # Get AI response
             async with self.api_client as client:
-                ai_response = await client.get_response(message_text)
+                ai_response = await client.get_response(full_message)
+            
+            # Store conversation in memory
+            self.memory.add_conversation(user.id, message_text, ai_response)
             
             # Truncate if necessary
             if len(ai_response) > self.max_message_length:
@@ -227,3 +253,41 @@ This helps ensure fair usage for all users\\. Thank you for understanding\\! �
                 )
             except Exception as e:
                 logger.error(f"Failed to send error message to user: {e}")
+    
+    async def clear_memory_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        """
+        Handle /clear command to clear conversation memory
+        
+        Args:
+            update: Telegram update object
+            context: Bot context
+        """
+        user = update.effective_user
+        logger.info(f"Memory clear requested by user {user.id} ({user.username})")
+        
+        # Clear user's conversation memory
+        cleared_count = self.memory.clear_user_memory(user.id)
+        
+        if cleared_count > 0:
+            clear_message = f"""
+🗑️ **Memory Cleared\\!**
+
+Successfully cleared **{cleared_count}** conversations from your memory\\.
+
+Your conversation history has been reset\\. I won't remember our previous conversations anymore\\.
+
+You can start fresh by sending me a new message\\! 🚀
+            """
+        else:
+            clear_message = """
+🗑️ **Memory Already Empty**
+
+You don't have any conversation history to clear\\.
+
+Start chatting with me and I'll remember our conversations\\! 💬
+            """
+        
+        await update.message.reply_text(
+            clear_message,
+            parse_mode=ParseMode.MARKDOWN_V2
+        )

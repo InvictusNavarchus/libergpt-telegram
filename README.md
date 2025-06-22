@@ -5,6 +5,7 @@ A robust Telegram bot that provides free access to AI-powered conversations usin
 ## Features
 
 - 🤖 **Free AI Chat**: Access to AI-powered conversations without limits
+- 🧠 **Conversation Memory**: Remembers last 20 conversations for better context
 - ⚡ **Fast Responses**: Optimized for quick response times
 - 🛡️ **Rate Limiting**: Built-in protection against spam
 - 🔧 **Easy Setup**: Simple configuration and deployment
@@ -16,6 +17,7 @@ A robust Telegram bot that provides free access to AI-powered conversations usin
 - `/start` - Start the bot and get welcome message
 - `/help` - Show help message with available commands
 - `/status` - Check bot status and API availability
+- `/clear` - Clear your conversation memory
 - Just send any message to chat with the AI!
 
 ## Setup
@@ -77,6 +79,7 @@ libergpt/
 │   ├── handlers.py      # Message handlers
 │   ├── api_client.py    # API communication
 │   ├── config.py        # Configuration management
+│   ├── memory.py        # Conversation memory management
 │   └── utils.py         # Utility functions
 ├── pyproject.toml       # Project dependencies
 ├── .env.example         # Environment template
@@ -95,6 +98,21 @@ The bot uses the LiberGPT Copilot API:
 Built-in rate limiting protects against spam:
 - Default: 10 messages per 60 seconds per user
 - Configurable via environment variables
+
+## Conversation Memory
+
+The bot includes intelligent conversation memory:
+- **Memory Capacity**: Stores last 20 conversations per user
+- **Context Awareness**: Uses conversation history for better responses
+- **Privacy**: Each user's memory is isolated and private
+- **Management**: Use `/clear` command to reset your conversation history
+- **Automatic Cleanup**: Old conversations are automatically removed when limit is reached
+
+Memory helps the bot:
+- Understand context from previous messages
+- Provide more relevant and coherent responses
+- Remember your preferences and conversation style
+- Maintain continuity in longer discussions
 
 ## License
 

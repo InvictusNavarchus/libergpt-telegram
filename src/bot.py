@@ -9,6 +9,7 @@ from .config import Config
 from .api_client import LiberGPTAPIClient
 from .handlers import MessageHandlers
 from .utils import RateLimiter, setup_logging
+from .memory import ConversationMemory
 
 logger = logging.getLogger(__name__)
 
@@ -31,9 +32,11 @@ class LiberGPTBot:
             max_messages=config.RATE_LIMIT_MESSAGES,
             time_window=config.RATE_LIMIT_WINDOW
         )
+        self.memory = ConversationMemory(max_conversations=20)
         self.handlers = MessageHandlers(
             api_client=self.api_client,
             rate_limiter=self.rate_limiter,
+            memory=self.memory,
             max_message_length=config.MAX_MESSAGE_LENGTH
         )
         self.application = None
@@ -44,6 +47,7 @@ class LiberGPTBot:
         self.application.add_handler(CommandHandler("start", self.handlers.start_command))
         self.application.add_handler(CommandHandler("help", self.handlers.help_command))
         self.application.add_handler(CommandHandler("status", self.handlers.status_command))
+        self.application.add_handler(CommandHandler("clear", self.handlers.clear_memory_command))
         
         # Message handler for regular text messages
         self.application.add_handler(
