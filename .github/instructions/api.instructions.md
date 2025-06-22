@@ -1,3 +1,7 @@
+---
+applyTo: "**"
+---
+
 # LiberGPT Copilot API Documentation
 
 ## Overview
