@@ -3,6 +3,7 @@ Main bot class for LiberGPT Telegram bot
 """
 
 import logging
+from telegram import BotCommand
 from telegram.ext import Application, CommandHandler, MessageHandler, filters
 
 from .config import Config
@@ -67,6 +68,20 @@ class LiberGPTBot:
             application: The Telegram Application instance
         """
         logger.info("Bot initialization completed")
+        
+        # Set up bot commands for the menu
+        commands = [
+            BotCommand("start", "Start the bot and get welcome message"),
+            BotCommand("help", "Show help information"),
+            BotCommand("status", "Check bot status"),
+            BotCommand("clear", "Clear conversation memory")
+        ]
+        
+        try:
+            await application.bot.set_my_commands(commands)
+            logger.info("Bot commands set successfully")
+        except Exception as e:
+            logger.error(f"Failed to set bot commands: {e}")
         
         # Test API connection
         async with self.api_client as client:
