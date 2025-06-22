@@ -59,7 +59,7 @@ I'm your free AI assistant powered by advanced language models\\. I can help you
 • `/clear` \\- Clear conversation memory
 • Just send me any message to start chatting\\!
 
-**Note:** This bot has rate limiting to ensure fair usage for everyone\\. I also remember our last 20 conversations for better context\\!
+**Note:** This bot has rate limiting to ensure fair usage for everyone\\. I also remember our conversations for better context\\!
 
 Ready to chat? Send me a message\\! 🚀
         """
@@ -104,7 +104,7 @@ To ensure fair usage, there are rate limits in place\\. If you hit the limit, yo
 • Be specific with your questions for better answers
 • For code\\-related questions, mention the programming language
 • I can help with explanations, creative writing, problem\\-solving, and more\\!
-• I remember our last 20 conversations for better context
+• I remember our conversations for better context
 • Use `/clear` to reset conversation memory if needed
 
 Need more help? Just ask me anything\\! 💬
@@ -153,7 +153,7 @@ Need more help? Just ask me anything\\! 💬
 • Your status: {"✅ Available" if self.rate_limiter.is_allowed(update.effective_user.id) else "⏳ Rate limited"}
 
 **Memory:**
-• Conversations stored: {memory_stats['conversation_count']}/20
+• Conversations stored: {memory_stats['conversation_count']}/{self.memory.max_conversations}
 • Use `/clear` to reset memory
 
 **Last Updated:** Just now

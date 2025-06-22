@@ -5,7 +5,7 @@ A robust Telegram bot that provides free access to AI-powered conversations usin
 ## Features
 
 - 🤖 **Free AI Chat**: Access to AI-powered conversations without limits
-- 🧠 **Conversation Memory**: Remembers last 20 conversations for better context
+- 🧠 **Conversation Memory**: Remembers conversations for better context (configurable limit)
 - ⚡ **Fast Responses**: Optimized for quick response times
 - 🛡️ **Rate Limiting**: Built-in protection against spam
 - 🔧 **Easy Setup**: Simple configuration and deployment
@@ -66,6 +66,7 @@ DEBUG=False
 MAX_MESSAGE_LENGTH=4096
 RATE_LIMIT_MESSAGES=10
 RATE_LIMIT_WINDOW=60
+MEMORY_CONVERSATIONS=20
 ```
 
 ## Project Structure
@@ -102,7 +103,7 @@ Built-in rate limiting protects against spam:
 ## Conversation Memory
 
 The bot includes intelligent conversation memory:
-- **Memory Capacity**: Stores last 20 conversations per user
+- **Memory Capacity**: Configurable conversation limit per user (default: 20)
 - **Context Awareness**: Uses conversation history for better responses
 - **Privacy**: Each user's memory is isolated and private
 - **Management**: Use `/clear` command to reset your conversation history

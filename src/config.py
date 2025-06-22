@@ -19,6 +19,7 @@ class Config:
         self.MAX_MESSAGE_LENGTH = int(os.getenv("MAX_MESSAGE_LENGTH", "4096"))
         self.RATE_LIMIT_MESSAGES = int(os.getenv("RATE_LIMIT_MESSAGES", "10"))
         self.RATE_LIMIT_WINDOW = int(os.getenv("RATE_LIMIT_WINDOW", "60"))
+        self.MEMORY_CONVERSATIONS = int(os.getenv("MEMORY_CONVERSATIONS", "20"))
         
         self._validate_config()
     

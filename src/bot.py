@@ -32,7 +32,7 @@ class LiberGPTBot:
             max_messages=config.RATE_LIMIT_MESSAGES,
             time_window=config.RATE_LIMIT_WINDOW
         )
-        self.memory = ConversationMemory(max_conversations=20)
+        self.memory = ConversationMemory(max_conversations=config.MEMORY_CONVERSATIONS)
         self.handlers = MessageHandlers(
             api_client=self.api_client,
             rate_limiter=self.rate_limiter,
