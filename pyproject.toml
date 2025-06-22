@@ -1,0 +1,26 @@
+[project]
+name = "libergpt"
+version = "1.0.0"
+description = "LiberGPT - A free Telegram bot powered by AI"
+authors = [
+    {name = "LiberGPT", email = "libergpt@example.com"},
+]
+dependencies = [
+    "python-telegram-bot>=22.1",
+    "aiohttp>=3.8.0",
+    "python-dotenv>=1.0.0",
+    "asyncio>=3.4.3",
+]
+requires-python = ">=3.8"
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
