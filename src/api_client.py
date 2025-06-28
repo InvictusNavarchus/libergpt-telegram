@@ -4,7 +4,7 @@ API client for communicating with LiberGPT Copilot API
 
 import asyncio
 import logging
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 import aiohttp
 
 logger = logging.getLogger(__name__)
@@ -12,17 +12,15 @@ logger = logging.getLogger(__name__)
 class LiberGPTAPIClient:
     """Client for interacting with the LiberGPT Copilot API"""
     
-    def __init__(self, base_url: str, cors_proxy: Optional[str] = None, timeout: int = 30):
+    def __init__(self, base_url: str, timeout: int = 30):
         """
         Initialize the API client
         
         Args:
             base_url: Base URL of the API
-            cors_proxy: CORS proxy URL if needed
             timeout: Request timeout in seconds
         """
         self.base_url = base_url.rstrip('/')
-        self.cors_proxy = cors_proxy.rstrip('/') if cors_proxy else None
         self.timeout = aiohttp.ClientTimeout(total=timeout)
         self.session = None
     
@@ -61,9 +59,6 @@ class LiberGPTAPIClient:
         Returns:
             Complete URL for the API endpoint
         """
-        if self.cors_proxy:
-            return f"{self.cors_proxy}/{self.base_url}"
-        
         return self.base_url
     
     async def get_response(self, prompt: str) -> str:
