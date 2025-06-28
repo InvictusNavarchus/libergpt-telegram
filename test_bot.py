@@ -17,8 +17,7 @@ async def test_api_client():
     from src.api_client import LiberGPTAPIClient
     
     api_client = LiberGPTAPIClient(
-        base_url="https://api.zpi.my.id/v1/ai/copilot",
-        cors_proxy="https://cors.fadel.web.id/"
+        base_url="https://api.zpi.my.id/v1/ai/copilot"
     )
     
     try:

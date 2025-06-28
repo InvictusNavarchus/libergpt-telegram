@@ -26,8 +26,7 @@ class LiberGPTBot:
         """
         self.config = config
         self.api_client = LiberGPTAPIClient(
-            base_url=config.API_BASE_URL,
-            cors_proxy=config.CORS_PROXY
+            base_url=config.API_BASE_URL
         )
         self.rate_limiter = RateLimiter(
             max_messages=config.RATE_LIMIT_MESSAGES,
