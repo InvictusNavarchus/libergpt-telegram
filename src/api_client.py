@@ -4,8 +4,7 @@ API client for communicating with LiberGPT Copilot API
 
 import asyncio
 import logging
-import urllib.parse
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 import aiohttp
 
 logger = logging.getLogger(__name__)
@@ -13,17 +12,15 @@ logger = logging.getLogger(__name__)
 class LiberGPTAPIClient:
     """Client for interacting with the LiberGPT Copilot API"""
     
-    def __init__(self, base_url: str, cors_proxy: Optional[str] = None, timeout: int = 30):
+    def __init__(self, base_url: str, timeout: int = 30):
         """
         Initialize the API client
         
         Args:
             base_url: Base URL of the API
-            cors_proxy: CORS proxy URL if needed
             timeout: Request timeout in seconds
         """
         self.base_url = base_url.rstrip('/')
-        self.cors_proxy = cors_proxy.rstrip('/') if cors_proxy else None
         self.timeout = aiohttp.ClientTimeout(total=timeout)
         self.session = None
     
@@ -37,23 +34,32 @@ class LiberGPTAPIClient:
         if self.session:
             await self.session.close()
     
-    def _build_url(self, prompt: str) -> str:
+    def _build_payload(self, prompt: str) -> Dict[str, Any]:
         """
-        Build the complete API URL with encoded prompt
+        Build the JSON payload for the API request
         
         Args:
             prompt: The text prompt to send to the API
             
         Returns:
-            Complete URL ready for request
+            JSON payload for the request
         """
-        encoded_prompt = urllib.parse.quote(prompt)
-        api_url = f"{self.base_url}?text={encoded_prompt}"
+        return {
+            "stream": "false",
+            "messages": [
+                {"role": "system", "content": "You are LiberGPT"},
+                {"role": "user", "content": prompt}
+            ]
+        }
+    
+    def _get_api_url(self) -> str:
+        """
+        Get the complete API URL
         
-        if self.cors_proxy:
-            return f"{self.cors_proxy}/{api_url}"
-        
-        return api_url
+        Returns:
+            Complete URL for the API endpoint
+        """
+        return self.base_url
     
     async def get_response(self, prompt: str) -> str:
         """
@@ -73,16 +79,18 @@ class LiberGPTAPIClient:
         if not self.session:
             raise RuntimeError("API client not initialized. Use as async context manager.")
         
-        url = self._build_url(prompt)
+        url = self._get_api_url()
+        payload = self._build_payload(prompt)
         headers = {
             'Accept': 'application/json',
+            'Content-Type': 'application/json',
             'User-Agent': 'LiberGPT-Telegram-Bot/1.0'
         }
         
         logger.debug(f"Making API request to: {url}")
         
         try:
-            async with self.session.get(url, headers=headers) as response:
+            async with self.session.post(url, json=payload, headers=headers) as response:
                 # Check if request was successful
                 response.raise_for_status()
                 
