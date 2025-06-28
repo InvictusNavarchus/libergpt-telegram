@@ -10,7 +10,6 @@ A robust Telegram bot that provides free access to AI-powered conversations usin
 - 🛡️ **Rate Limiting**: Built-in protection against spam
 - 🔧 **Easy Setup**: Simple configuration and deployment
 - 📱 **User-Friendly**: Intuitive commands and interactions
-- 🌐 **CORS Support**: Works with proxy for web-based API access
 
 ## Commands
 
@@ -61,7 +60,6 @@ Edit the `.env` file with your settings:
 ```env
 BOT_TOKEN=your_telegram_bot_token_here
 API_BASE_URL=https://api.zpi.my.id/v1/ai/copilot
-CORS_PROXY=https://cors.fadel.web.id/
 DEBUG=False
 MAX_MESSAGE_LENGTH=4096
 RATE_LIMIT_MESSAGES=10
@@ -91,8 +89,8 @@ libergpt/
 
 The bot uses the LiberGPT Copilot API:
 - **Endpoint**: `https://api.zpi.my.id/v1/ai/copilot`
-- **Method**: GET with `text` parameter
-- **CORS Proxy**: `https://cors.fadel.web.id/` (for browser compatibility)
+- **Method**: POST with JSON payload
+- **Format**: Conversation messages with system and user roles
 
 ## Rate Limiting
 
