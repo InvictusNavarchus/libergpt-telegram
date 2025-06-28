@@ -11,10 +11,9 @@ The LiberGPT Copilot API provides access to an AI-powered assistant service that
 ## Base Information
 
 - **Base URL**: `https://api.zpi.my.id/v1/ai/copilot`
-- **CORS Proxy**: `https://cors.fadel.web.id/` (required for browser requests)
 - **Protocol**: HTTPS
-- **Method**: GET
-- **Content Type**: JSON
+- **Method**: POST
+- **Content Type**: application/json
 - **Rate Limiting**: Not specified (use responsibly)
 
 ## Authentication
@@ -23,34 +22,45 @@ The LiberGPT Copilot API provides access to an AI-powered assistant service that
 
 ## Endpoint
 
-### GET /v1/ai/copilot
+### POST /v1/ai/copilot
 
 Sends a prompt to the AI assistant and receives a response.
 
 #### Request Format
 
 ```
-GET https://cors.fadel.web.id/https://api.zpi.my.id/v1/ai/copilot?text={encoded_prompt}
+POST https://api.zpi.my.id/v1/ai/copilot
+Content-Type: application/json
+```
+
+#### Request Body
+
+The request body should be a JSON object with the following structure:
+
+```json
+{
+  "stream": "false",
+  "messages": [
+    {"role": "system", "content": "You are LiberGPT"},
+    {"role": "user", "content": "Your question or prompt here"}
+  ]
+}
 ```
 
 #### Parameters
 
-| Parameter | Type   | Required | Description                                                   |
-|-----------|--------|----------|---------------------------------------------------------------|
-| `text`    | string | Yes      | The prompt/question to send to the AI (URL-encoded required) |
-
-#### URL Encoding
-
-**Important**: The `text` parameter must be properly URL-encoded to handle special characters, spaces, and punctuation.
-
-**Examples**:
-- Input: `Hello! Can you explain what Python is?`
-- Encoded: `Hello%21%20Can%20you%20explain%20what%20Python%20is%3F`
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `stream` | string | Yes | Set to "false" for non-streaming responses |
+| `messages` | array | Yes | Array of message objects representing the conversation |
+| `messages[].role` | string | Yes | Role of the message sender ("system" or "user") |
+| `messages[].content` | string | Yes | Content of the message |
 
 #### Request Headers
 
 ```http
 Accept: application/json
+Content-Type: application/json
 User-Agent: [Your application identifier]
 ```
 
@@ -66,18 +76,26 @@ User-Agent: [Your application identifier]
 {
   "code": 200,
   "response": {
-    "content": "AI-generated response text here..."
+    "provider": "microsoft",
+    "content": "AI-generated response text here...",
+    "messages": [
+      {"role": "system", "content": "You are LiberGPT"},
+      {"role": "user", "content": "Your question"},
+      {"role": "assistant", "content": "AI-generated response text here..."}
+    ]
   }
 }
 ```
 
 #### Response Fields
 
-| Field             | Type   | Description                                           |
-|-------------------|--------|-------------------------------------------------------|
-| `code`            | number | HTTP status code (always 200 for successful requests)|
-| `response`        | object | Container for the AI response                         |
-| `response.content`| string | The actual AI-generated text response                 |
+| Field | Type | Description |
+|-------|------|-------------|
+| `code` | number | HTTP status code (always 200 for successful requests) |
+| `response` | object | Container for the AI response |
+| `response.provider` | string | AI provider identifier (e.g., "microsoft") |
+| `response.content` | string | The actual AI-generated text response |
+| `response.messages` | array | Complete conversation history including the new response |
 
 ### Error Response
 
@@ -105,12 +123,22 @@ User-Agent: [Your application identifier]
  */
 async function fetchAIResponse(prompt) {
     try {
-        const encodedPrompt = encodeURIComponent(prompt);
-        const baseEndpoint = 'https://api.zpi.my.id/v1/ai/copilot';
-        const fullUrl = `${baseEndpoint}?text=${encodedPrompt}`;
-        const proxiedUrl = `https://cors.fadel.web.id/${fullUrl}`;
+        const payload = {
+            stream: "false",
+            messages: [
+                { role: "system", content: "You are LiberGPT" },
+                { role: "user", content: prompt }
+            ]
+        };
         
-        const response = await fetch(proxiedUrl);
+        const response = await fetch('https://api.zpi.my.id/v1/ai/copilot', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
         
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -139,7 +167,7 @@ fetchAIResponse("What is machine learning?")
 
 ```python
 import requests
-import urllib.parse
+import json
 
 def get_ai_response(prompt: str) -> str:
     """
@@ -155,16 +183,24 @@ def get_ai_response(prompt: str) -> str:
         Exception: If the API request fails or returns unexpected format
     """
     try:
-        # URL encode the prompt
-        encoded_prompt = urllib.parse.quote(prompt)
-        
-        # Construct URL
-        base_endpoint = "https://api.zpi.my.id/v1/ai/copilot"
-        full_url = f"{base_endpoint}?text={encoded_prompt}"
-        proxied_url = f"https://cors.fadel.web.id/{full_url}"
+        # Prepare payload
+        payload = {
+            "stream": "false",
+            "messages": [
+                {"role": "system", "content": "You are LiberGPT"},
+                {"role": "user", "content": prompt}
+            ]
+        }
         
         # Make request
-        response = requests.get(proxied_url)
+        response = requests.post(
+            "https://api.zpi.my.id/v1/ai/copilot",
+            headers={
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            json=payload
+        )
         response.raise_for_status()
         
         # Parse response
@@ -192,12 +228,28 @@ except Exception as e:
 
 ```bash
 # Basic request
-curl -X GET "https://cors.fadel.web.id/https://api.zpi.my.id/v1/ai/copilot?text=Hello%21%20What%20is%20AI%3F" \
-     -H "Accept: application/json"
+curl -X POST "https://api.zpi.my.id/v1/ai/copilot" \
+     -H "Accept: application/json" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "stream": "false",
+       "messages": [
+         {"role": "system", "content": "You are LiberGPT"},
+         {"role": "user", "content": "Hello! What is AI?"}
+       ]
+     }'
 
 # With proper error handling
-curl -X GET "https://cors.fadel.web.id/https://api.zpi.my.id/v1/ai/copilot?text=Hello%21%20What%20is%20AI%3F" \
+curl -X POST "https://api.zpi.my.id/v1/ai/copilot" \
      -H "Accept: application/json" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "stream": "false",
+       "messages": [
+         {"role": "system", "content": "You are LiberGPT"},
+         {"role": "user", "content": "Hello! What is AI?"}
+       ]
+     }' \
      -w "HTTP Status: %{http_code}\n" \
      -s -S
 ```
@@ -206,14 +258,29 @@ curl -X GET "https://cors.fadel.web.id/https://api.zpi.my.id/v1/ai/copilot?text=
 
 ### Successful Response
 
-**Request**: `What is Python programming?`
+**Request**: 
+```json
+{
+  "stream": "false",
+  "messages": [
+    {"role": "system", "content": "You are LiberGPT"},
+    {"role": "user", "content": "What is Python programming?"}
+  ]
+}
+```
 
 **Response**:
 ```json
 {
   "code": 200,
   "response": {
-    "content": "Of course! **Python** is a popular programming language that's known for being easy to learn and use. Think of it like a set of instructions you give to a computer to make it do things—whether that's building a website, analyzing data, or even controlling a robot.\n\nIt's great for beginners because the way you write Python code is more like plain English compared to some other programming languages. Plus, it's used by big companies like Google and Netflix, so learning it can open a lot of doors!\n\nWould you like an example of what Python code looks like?"
+    "provider": "microsoft",
+    "content": "Of course! **Python** is a popular programming language that's known for being easy to learn and use. Think of it like a set of instructions you give to a computer to make it do things—whether that's building a website, analyzing data, or even controlling a robot.\n\nIt's great for beginners because the way you write Python code is more like plain English compared to some other programming languages. Plus, it's used by big companies like Google and Netflix, so learning it can open a lot of doors!\n\nWould you like an example of what Python code looks like?",
+    "messages": [
+      {"role": "system", "content": "You are LiberGPT"},
+      {"role": "user", "content": "What is Python programming?"},
+      {"role": "assistant", "content": "Of course! **Python** is a popular programming language that's known for being easy to learn and use. Think of it like a set of instructions you give to a computer to make it do things—whether that's building a website, analyzing data, or even controlling a robot.\n\nIt's great for beginners because the way you write Python code is more like plain English compared to some other programming languages. Plus, it's used by big companies like Google and Netflix, so learning it can open a lot of doors!\n\nWould you like an example of what Python code looks like?"}
+    ]
   }
 }
 ```
