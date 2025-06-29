@@ -86,7 +86,6 @@ BOT_TOKEN=your_bot_token_here
 
 # API Configuration (usually don't need to change)
 API_BASE_URL=https://api.zpi.my.id/v1/ai/copilot
-CORS_PROXY=https://cors.fadel.web.id/
 
 # Optional Settings
 DEBUG=False                    # Enable debug logging

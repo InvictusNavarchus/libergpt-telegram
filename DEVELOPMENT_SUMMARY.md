@@ -41,10 +41,10 @@ libergpt/
 
 #### 3. **AI Integration**
 - ✅ Full integration with LiberGPT Copilot API
-- ✅ CORS proxy support for web compatibility
-- ✅ Proper URL encoding and error handling
+- ✅ POST JSON request format with conversation messages
+- ✅ Proper error handling and response validation
 - ✅ Health check functionality
-- ✅ Response validation and parsing
+- ✅ Response parsing and content extraction
 
 #### 4. **Security & Performance**
 - ✅ Rate limiting (10 messages/60s per user)
@@ -92,7 +92,6 @@ BOT_TOKEN=your_telegram_bot_token_here
 
 # API Settings (pre-configured)
 API_BASE_URL=https://api.zpi.my.id/v1/ai/copilot
-CORS_PROXY=https://cors.fadel.web.id/
 
 # Optional Customization
 DEBUG=False                    # Enable debug logging

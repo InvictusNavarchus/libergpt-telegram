@@ -14,7 +14,6 @@ class Config:
     def __init__(self):
         self.BOT_TOKEN = os.getenv("BOT_TOKEN")
         self.API_BASE_URL = os.getenv("API_BASE_URL", "https://api.zpi.my.id/v1/ai/copilot")
-        self.CORS_PROXY = os.getenv("CORS_PROXY", "https://cors.fadel.web.id/")
         self.DEBUG = os.getenv("DEBUG", "False").lower() == "true"
         self.MAX_MESSAGE_LENGTH = int(os.getenv("MAX_MESSAGE_LENGTH", "4096"))
         self.RATE_LIMIT_MESSAGES = int(os.getenv("RATE_LIMIT_MESSAGES", "10"))
@@ -33,7 +32,5 @@ class Config:
     
     @property
     def full_api_url(self):
-        """Get the full API URL with CORS proxy if configured"""
-        if self.CORS_PROXY:
-            return f"{self.CORS_PROXY.rstrip('/')}/{self.API_BASE_URL}"
+        """Get the full API URL"""
         return self.API_BASE_URL

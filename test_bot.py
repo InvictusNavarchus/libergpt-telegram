@@ -102,7 +102,6 @@ def test_config():
     env_content = """
 BOT_TOKEN=test_token_123
 API_BASE_URL=https://api.example.com
-CORS_PROXY=https://cors.example.com
 DEBUG=True
 MAX_MESSAGE_LENGTH=2048
 RATE_LIMIT_MESSAGES=5
@@ -118,7 +117,7 @@ RATE_LIMIT_WINDOW=30
     
     try:
         # Clear relevant env vars
-        for key in ["BOT_TOKEN", "API_BASE_URL", "CORS_PROXY", "DEBUG"]:
+        for key in ["BOT_TOKEN", "API_BASE_URL", "DEBUG"]:
             if key in os.environ:
                 del os.environ[key]
         
